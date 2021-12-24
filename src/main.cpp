@@ -5,17 +5,8 @@
 #include <Adafruit_ICM20649.h>
 #include <Adafruit_ICM20X.h>
 #include <Adafruit_NeoPixel_ZeroDMA.h>
-#include <Adafruit_Sensor.h>
-#include <Wire.h>
 
 Adafruit_ICM20649 icm;
-uint16_t          measurement_delay_us = 65535; // Delay between measurements for testing
-// For SPI mode, we need a CS pin
-#define ICM_CS 10
-// For software-SPI mode we need SCK/MOSI/MISO pins
-#define ICM_SCK 13
-#define ICM_MISO 12
-#define ICM_MOSI 11
 
 #define PIN 12
 #define NUM_PIXELS 30
@@ -27,23 +18,14 @@ void setup(void) {
 
     strip.begin();
     strip.setBrightness(32);
-    strip.show();
 
-    Serial.println("Adafruit ICM20649 test!");
-
-    // Try to initialize!
     if (!icm.begin_I2C()) {
-        // if (!icm.begin_SPI(ICM_CS)) {
-        // if (!icm.begin_SPI(ICM_CS, ICM_SCK, ICM_MISO, ICM_MOSI)) {
-
         Serial.println("Failed to find ICM20649 chip");
         while (1) { delay(10); }
     }
     Serial.println("ICM20649 Found!");
 
-    delay(2000);
-
-    // icm.setAccelRange(ICM20649_ACCEL_RANGE_4_G);
+    icm.setAccelRange(ICM20649_ACCEL_RANGE_30_G);
     Serial.print("Accelerometer range set to: ");
     switch (icm.getAccelRange()) {
         case ICM20649_ACCEL_RANGE_4_G: Serial.println("+-4G"); break;
@@ -52,7 +34,7 @@ void setup(void) {
         case ICM20649_ACCEL_RANGE_30_G: Serial.println("+-30G"); break;
     }
 
-    // icm.setGyroRange(ICM20649_GYRO_RANGE_500_DPS);
+    icm.setGyroRange(ICM20649_GYRO_RANGE_4000_DPS);
     Serial.print("Gyro range set to: ");
     switch (icm.getGyroRange()) {
         case ICM20649_GYRO_RANGE_500_DPS: Serial.println("500 degrees/s"); break;
@@ -79,14 +61,12 @@ void setup(void) {
     Serial.print("Gyro data rate (Hz) is approximately: ");
     Serial.println(gyro_rate);
     Serial.println();
-    delay(4000);
 }
 
 float    heading = 0.0;
 uint32_t last    = 0;
 
 void loop() {
-    //  /* Get a new normalized sensor event */
     sensors_event_t accel;
     sensors_event_t gyro;
     sensors_event_t temp;
